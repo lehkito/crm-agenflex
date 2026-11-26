@@ -1,5 +1,9 @@
 function calendarRange(mode,today,month,start,end){
  const asDate=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ if(mode==='week'){
+   const first=new Date(today+'T12:00:00');first.setDate(first.getDate()-(first.getDay()+6)%7);
+   const last=new Date(first);last.setDate(last.getDate()+6);return [asDate(first),asDate(last)];
+ }
  if(mode==='range')return [start,end];
  if(mode==='all'||mode==='missing')return [];
  const base=mode==='month'?month:today.slice(0,7);

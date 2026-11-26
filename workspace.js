@@ -1,7 +1,7 @@
 let area='Pipeline',panelTab='Indicadores',audit=[],panelClient='',panelRoll='',filteredBoard=[];
 function repurchase(o,date,expectedClose){
  const copy=structuredClone(o);
- delete copy.newItem; delete copy.duplicateOf;
+ delete copy.leadEntered; delete copy.leadOrigin; delete copy.newItem; delete copy.duplicateOf;
  for(const line of copy.lines||[])delete line.newItem;
  return {...copy,tags:[...new Set([...(Array.isArray(copy.tags)?copy.tags:[]),copy.origin].filter(Boolean))],id:uid(),parent:o.id,orderRef:o.orderRef||o.id,title:'Venda Futura',stage:2,origin:'Carteira',result:'',closed:'',expectedClose,tasks:[task('Entrar em contato com o cliente',date)]};
 }
