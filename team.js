@@ -11,7 +11,10 @@ function clientDetail(key){
  }
  const history=[...byItem.values()].map(g=>{const last=g[g.length-1],avg=g.length>1?Math.round((Date.parse(last.closed)-Date.parse(g[0].closed))/86400000/(g.length-1)):null;
  return [esc(last.item),g.map(o=>fmt(o.closed)).join(', '),avg===null?'Uma compra':avg+' dias',avg===null?'—':fmt(new Date(Date.parse(last.closed)+avg*86400000).toISOString().slice(0,10))]});
- show('<h2>'+esc(c.name)+'</h2><p>'+esc(cnpjMask(c.cnpj))+' · '+esc(c.email)+' · '+esc(displayPhone(c.phone))+'</p><h3>Histórico de compras</h3>'+table(['Item','Datas de compra','Intervalo médio','Próxima estimativa'],history)+'<h3>Oportunidades</h3>'+grid(ops)+'<button onclick="modal.close()">Fechar</button>');
+ const items=catalog.filter(i=>i.cnpj===key&&!i.archived);
+ const tasks=ops.flatMap(o=>(o.tasks||[]).map(t=>[esc(t.name),esc(o.title),fmt(t.date),t.done?'Concluída':'Aberta']));
+ const notes=ops.filter(o=>o.notes).map(o=>[esc(o.title),'<span class="notes-text">'+esc(o.notes)+'</span>']);
+ show('<section class="customer-sheet"><header><h2>'+esc(c.name)+'</h2><button onclick="modal.close()">Fechar</button></header><p>'+esc(cnpjMask(c.cnpj))+' · '+esc(c.email)+' · '+esc(displayPhone(c.phone))+'</p><h3>Itens</h3>'+table(['Item','Material','Bobina'],items.map(i=>[esc(i.name),esc(i.material),esc(i.bobina)]))+'<h3>Oportunidades</h3>'+grid(ops)+'<h3>Tarefas</h3>'+table(['Tarefa','Oportunidade','Data','Status'],tasks)+'<h3>Observações</h3>'+table(['Oportunidade','Observações'],notes)+'<h3>Histórico de compras</h3>'+table(['Item','Datas de compra','Intervalo médio','Próxima estimativa'],history)+'</section>');
  modal.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>edit(data.find(o=>o.id===b.dataset.open)));
 }
 function showExtra(rows){

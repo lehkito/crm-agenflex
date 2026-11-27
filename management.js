@@ -19,8 +19,17 @@ function refreshIdentity(){
  $('#manageProfiles').hidden=profile.role!=='Gestor';$('#manageProfiles').onclick=settingsDialog;
 }
 function delayReason(o){
- if(o.stage>=4)return '';
- return [o.expectedClose&&o.expectedClose<day()?'Fechamento vencido em '+fmt(o.expectedClose):'',...(o.tasks||[]).filter(t=>!t.done&&t.date&&t.date<day()).map(t=>t.name+' · '+fmt(t.date))].filter(Boolean).join(' / ');
+ if(o.stage>=4 || ['Concluído','Perdido','Excluída'].includes(o.result))return '';
+ const today=day();
+ const reasons=[];
+ function check(date,label){
+  if(!date || date>=today)return;
+  const days=Math.round((Date.parse(today)-Date.parse(date))/86400000);
+  if(Number.isFinite(days))reasons.push(label+' · '+days+(days===1?' dia':' dias')+' de atraso ('+fmt(date)+')');
+ }
+ check(o.expectedClose,'Fechamento');
+ for(const t of o.tasks||[])if(!t.done)check(t.date,t.name||'Tarefa');
+ return reasons.join(' / ');
 }
 function attachNotes(o){
  const f=modal.querySelector('form');

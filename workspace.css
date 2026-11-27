@@ -26,3 +26,9 @@ textarea[name=notes]{width:100%;font:inherit;resize:vertical;padding:12px;border
 .avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px}.initials{display:inline-grid;place-items:center;background:#deebed;color:#254954;font-size:11px;font-weight:650}#profileMenu{position:relative}#profileMenu summary{cursor:pointer}#profileMenu[open]{z-index:2;background:white;padding:8px}
 .card.delayed{border:2px solid #b83435;animation:latePulse 3.5s ease-in-out infinite}.delayed .cardfoot{color:#9e2727;font-weight:650}@keyframes latePulse{50%{box-shadow:0 0 0 3px #c93d3d30}}@media(prefers-reduced-motion:reduce){.card.delayed{animation:none}}
 .task-board{display:grid;grid-template-columns:repeat(6,minmax(205px,1fr));gap:12px;overflow:auto;margin-top:16px}.task-board section{border-radius:10px;background:#eaf0f2;padding:10px;min-height:170px}.task-board h3{font-size:15px}.task-board article{background:white;padding:12px;margin:9px 0;border-radius:8px}.task-board small{display:block;margin:5px 0}.task-board button{font-size:12px;margin:2px}.chart svg{width:100%;max-height:220px}.chart rect{cursor:pointer}.primary-nav{overflow:auto}header .brand-official{border:0}body:not([data-area=Início]) #creation{display:flex}body:not([data-area=Início]) #creation>button{display:none}
+
+dialog:has(.customer-sheet)[open]{box-sizing:border-box;width:96vw;max-width:96vw;height:94dvh;max-height:94dvh;overflow:auto;padding:0 18px 18px}
+.customer-sheet>header{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;background:white;color:#18323d;padding:12px 0}
+.customer-sheet .panel{overflow-x:auto}
+.card.delayed{background:#fff6f5}
+@keyframes latePulse{0%,100%{background:#fff8f7;border-color:#b83435}50%{background:#ffebe8;border-color:#cf4443;box-shadow:0 0 0 3px #c93d3d22}}
