@@ -11,6 +11,8 @@ function calendarRange(mode,today,month,start,end){
  let [year,m]=base.split('-').map(Number);
  let count=1;
  if(mode==='next')m++;
+ if(mode==='previous')m--;
+ if(mode==='year'){m=1;count=12}
  if(mode==='quarter'){m=1+3*Math.floor((m-1)/3);count=3}
  return [asDate(new Date(year,m-1,1)),asDate(new Date(year,m-1+count,0))];
 }

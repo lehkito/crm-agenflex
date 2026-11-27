@@ -106,7 +106,7 @@ function productFields(form){
  return {...lines[0],lines,kg:Number(lines.reduce((sum,line)=>sum+line.kg,0).toFixed(3))};
 }
 function teamCatalog(){
- const mine=clients.filter(c=>c.seller_id===session.user.id);
+ const mine=clients.filter(c=>myWallet(c.seller_id));
  $('#view').innerHTML='<div class="panel"><h2>Itens por cliente</h2>'+(!mine.length?'<p>Cadastre o primeiro cliente e item em Novo cadastro de cliente.</p>':'<form id="productForm"><label>Cliente<select name="cnpj">'+mine.map(c=>'<option value="'+esc(c.cnpj)+'">'+esc(c.name)+'</option>').join('')+'</select></label>'+field('Item','name')+'<label>Material<select name="material">'+options(['Plástico','Papel','Outro'])+'</select></label>'+field('Bobina / especificação','bobina')+'<button>Cadastrar item</button></form>')+'</div>'+table(['Cliente','Item','Bobina','KG','Tipo',''],catalog.filter(i=>!i.archived).map(i=>[esc(clients.find(c=>c.cnpj===i.cnpj)?.name||i.cnpj),esc(i.name),esc(i.bobina),esc(i.kg),i.material==='Papel'?'Terceiros':esc(i.material),mine.some(c=>c.cnpj===i.cnpj)?'<button data-archive="'+esc(i.id)+'">Excluir item</button>':'']));
  const f=$('#productForm');if(f)f.onsubmit=async ev=>{ev.preventDefault();try{const fields=Object.fromEntries(new FormData(f));await addCatalogItem({...fields,name:fields.name.trim(),id:uid()});teamCatalog()}catch(e){alert(e.message)}};
  $('#view').querySelectorAll('[data-archive]').forEach(b=>b.onclick=async()=>{if(!confirm('Retirar este item do catálogo ativo e preservar o histórico?'))return;try{await request('/rest/v1/crm_client_items?id=eq.'+b.dataset.archive,{archived:true},await accessToken(),'PATCH');await loadCatalog(await accessToken());teamCatalog()}catch(e){alert(e.message)}});
@@ -115,7 +115,7 @@ function teamCatalog(){
 function registerCustomer(){
  const manager=profile.role==='Gestor';
  const seller=manager?'Carteira Agenflex':profile.name;
- const departments=manager?['Food','Pharma','Direct']:[profile.department];
+ const departments=manager?['Food','Pharma','Direct','Hunter']:[profile.department];
  const select=(title,name,list)=>'<label>'+title+' *<select name="'+name+'" required><option value="">Selecione</option>'+options(list,list.length===1?list[0]:null)+'</select></label>';
  show(form('Novo cadastro de cliente',
    field('Cliente (Nome fantasia) *','client')+field('CNPJ *','cnpj')+

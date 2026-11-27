@@ -52,11 +52,11 @@ async function orderHistory(o,section){
  if(o.closed)events.push('Fechamento em '+fmt(o.closed)+' · '+o.result);
  try{
    if(typeof fetchRows==='function'){
-     const list=await request('/rest/v1/crm_op_history?select=at,event&op_id=eq.'+encodeURIComponent(o.id)+'&order=at.desc',null,await accessToken());
-     for(const h of list)events.push(new Date(h.at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})+' · '+h.event);
+     const list=await request('/rest/v1/crm_op_history?select=at,event,actor_id,note_text&op_id=eq.'+encodeURIComponent(o.id)+'&order=at.desc',null,await accessToken());
+     for(const h of list)events.push(new Date(h.at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})+' · '+(directory.find(p=>p.user_id===h.actor_id)?.display_name||'Registro anterior')+' · '+h.event+(h.note_text!=null?' — '+(h.note_text||'(texto removido)'):''));
    }
  }catch{events.push('Não foi possível carregar os eventos.')}
- section.innerHTML+=events.length?'<ul>'+events.map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul>':'<p>Sem movimentações registradas desde a ativação do histórico.</p>';
+ section.innerHTML+=events.length?'<ul class="note-history">'+events.map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul>':'<p>Sem movimentações registradas desde a ativação do histórico.</p>';
 }
 function wideOpportunity(o,review=false){
  modal.classList.add('order-window');

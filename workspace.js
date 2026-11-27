@@ -1,4 +1,4 @@
-let area='Pipeline',panelTab='Indicadores',audit=[],panelClient='',panelRoll='',filteredBoard=[];
+let area='Início',panelTab='Indicadores',audit=[],panelClient='',panelRoll='',filteredBoard=[];
 function repurchase(o,date,expectedClose){
  const copy=structuredClone(o);
  delete copy.leadEntered; delete copy.leadOrigin; delete copy.newItem; delete copy.duplicateOf;
@@ -65,14 +65,15 @@ function dashboard(rows){
  view.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>listDialog(...actions[b.dataset.drill]));
 }
 function goArea(name){
+ if(name==='Tarefas'&&area!==name){const box=$('#periodBox');box.querySelector('[name=mode]').value='all';for(const b of box.querySelectorAll('[data-period]'))b.setAttribute('aria-pressed',String(b.dataset.period==='all'));for(const el of box.querySelectorAll('label'))el.hidden=true}
  area=name;panelTab='Indicadores';rollReport=false;reports=catalogOpen=listMode=false;extraView=name==='Tarefas'?'Tarefas':'';
  render();
 }
 function syncNavigation(){
- document.body.dataset.area=area;
+ document.body.dataset.area=area;refreshIdentity();
  for(const b of document.querySelectorAll('[data-area-link]'))b.setAttribute('aria-current',b.dataset.areaLink===area?'page':'false');
  $('#panelNav').hidden=area!=='Painel';$('#auditTab').hidden=profile?.role!=='Gestor';
  const waiting=audit.filter(a=>a.status==='Aguardando aprovação').length;$('#auditTab').textContent=waiting?'Exclusões ('+waiting+')':'Exclusões';
- $('#areaTitle').textContent=area==='Pipeline'?'Carteira comercial':area==='Painel'?'Painel comercial':'Tarefas comerciais';
+ $('#areaTitle').textContent=area==='Início'?'Carteira comercial':area==='Pipeline'?'Pipeline comercial':area==='Painel'?'Painel comercial':area==='Tarefas'?'Tarefas comerciais':area;
  for(const b of document.querySelectorAll('[data-panel-tab]'))b.classList.toggle('active',b.dataset.panelTab===panelTab);
 }

@@ -14,7 +14,7 @@ async function accessToken(){
 }
 async function loadBoard(){
  const token=await accessToken();
- await loadCatalog(token);
+ await Promise.all([loadCatalog(token),loadManagement(token)]);
  audit=profile?.role==='Gestor'?await fetchRows('crm_removals','*','requested_at.desc,id',token):[];
  clients=await fetchRows('crm_clients','*','cnpj',token);
  const rows=[];
@@ -41,13 +41,14 @@ async function save(){
 }
 function loginScreen(){
  document.querySelector('main').hidden=true;
- show('<form><span role="img" aria-label="Agenflex packing solutions" class="brand-official login-brand"></span><h2>Entrar no CRM</h2>'+field('E-mail','email','','email')+field('Senha','password','','password')+'<p role="status"></p><button class="primary">Entrar</button> <button type="button" id="recover">Primeiro acesso / esqueci a senha</button></form>');
+ show('<form><span role="img" aria-label="Agenflex packing solutions" class="brand-official login-brand"></span><h2>Entrar no CRM</h2>'+field('E-mail','email','','email')+field('Senha','password','','password')+'<p role="status"></p><button class="primary">Entrar</button> <button type="button" id="recover">Primeiro acesso / esqueci a senha</button> <button type="button" id="receivedLink">Já recebi o link por e-mail</button></form>');
  modal.oncancel=e=>{if(!session)e.preventDefault()};
  const fragment=new URLSearchParams(location.hash.slice(1));
- if(fragment.get('type')==='recovery'&&fragment.get('access_token')){
+ if(['recovery','signup','invite'].includes(fragment.get('type'))&&fragment.get('access_token')){
   history.replaceState(null,'',location.pathname+location.search);
   passwordScreen(fragment.get('access_token'));return;
  }
+ modal.querySelector('#receivedLink').onclick=()=>passwordScreen();
  modal.querySelector('#recover').onclick=()=>recoveryScreen(modal.querySelector('[name=email]').value);
 
  modal.querySelector('form').onsubmit=async e=>{
@@ -74,7 +75,7 @@ async function loadCatalog(token){catalog=await fetchRows('crm_client_items','*'
 async function addCatalogItem(item){
  const token=await accessToken();
  await request('/rest/v1/crm_client_items',item,token);
- await loadCatalog(token);
+ await Promise.all([loadCatalog(token),loadManagement(token)]);
 }
 
 function recoveryScreen(email){
@@ -90,7 +91,7 @@ function recoveryScreen(email){
  };
 }
 function passwordScreen(access){
- const verifyField=access?'':'<p>Abra seu e-mail e copie o endereço do botão de recuperação. Cole o link aqui para confirmar sua identidade.</p>'+field('Link de recuperação recebido por e-mail','link','','url','required autocomplete="off"');
+ const verifyField=access?'':'<p>Abra seu e-mail e copie o endereço do botão de confirmação ou recuperação. Cole o link aqui para confirmar sua identidade.</p>'+field('Link recebido por e-mail','link','','url','required autocomplete="off"');
  show('<form><h2>Definir senha</h2>'+verifyField+field('Nova senha','password','','password','required minlength="8" autocomplete="new-password"')+field('Confirmar nova senha','confirmation','','password','required autocomplete="new-password"')+'<p role="status"></p><button class="primary">Salvar senha</button> <button type="button" id="backLogin">Voltar</button></form>');
  modal.querySelector('#backLogin').onclick=loginScreen;
  modal.querySelector('form').onsubmit=async e=>{
@@ -101,8 +102,8 @@ function passwordScreen(access){
    if(!access){
     const link=new URL(f.elements.link.value);
     const hash=link.searchParams.get('token')||link.searchParams.get('token_hash');
-    if(link.origin!==endpoint||link.pathname!=='/auth/v1/verify'||link.searchParams.get('type')!=='recovery'||!hash)throw Error('Copie o endereço do botão do e-mail de recuperação mais recente.');
-    const verified=await request('/auth/v1/verify',{type:'recovery',token_hash:hash});
+    if(link.origin!==endpoint||link.pathname!=='/auth/v1/verify'||!['recovery','signup','invite'].includes(link.searchParams.get('type'))||!hash)throw Error('Copie o endereço do botão do e-mail de recuperação mais recente.');
+    const verified=await request('/auth/v1/verify',{type:link.searchParams.get('type'),token_hash:hash});
     access=verified.access_token;
    }
    await request('/auth/v1/user',{password:f.elements.password.value},access,'PUT');
